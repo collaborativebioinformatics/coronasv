@@ -2,10 +2,6 @@
 
 *Hackathon team: Daniel Agustinho, Daniela Soto, Max Marin, Shangzhe Zhang, Todd Treangen, Yunxi Liu*
 
-## Please cite our work -- here is the ICMJE Standard Citation:
-
-### ...and a link to the DOI:
-
 ## Awesome Logo
 
 ![logo](CoronaSV_logo.png)
