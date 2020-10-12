@@ -22,7 +22,9 @@ Overview Diagram
 
 # How to use <this software>
 
-# Software Workflow Diagram
+# Workflow Diagram
+
+![workflow](coronasv_workflow.png)
 
 # File structure diagram 
 #### _Define paths, variable names, etc_
