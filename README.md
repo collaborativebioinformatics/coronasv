@@ -22,7 +22,7 @@ Deletions have been reported in several SARS-CoV-2 genomes, primarily detected a
 
 Understanding structure variations in SARS-CoV-2 genomes is critical for us to learn the biological mechanism of SARS-CoV-2. By combining geographical data, SV information can serve as evidence for transmissions. Such mutations can also affect the effectiveness of COVID diagnosis and treatment. Therefore, a tool that can accurately detect SVs for SARS-CoV-2 at read level is needed. 
 
-# What is <this software>?
+# What is CoronaSV?
 
 CoronaSV is a pipeline for structural variation detection and validation for SARS-CoV-2 at read level. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
 
