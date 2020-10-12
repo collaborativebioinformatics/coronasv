@@ -12,11 +12,19 @@
 
 ## Intro statement
 
+CoronaSV is an SV detection and validation pipeline for SARS-CoV-2 samples.
+
 ## What's the problem?
+
+Deletions have been reported in several SARS-CoV-2 genomes, primarily detected at the consensus/assembly level. Existing methods of detecting structural variation at read level often suffer from false positive calls, and sample analysis with different SV calling pipelines would result in inconsistent calls. However, accurate and trustable SV calls at read level are required for SARS-CoV-2 downstream analysis. 
 
 ## Why should we solve it?
 
+Understanding structure variations in SARS-CoV-2 genomes is critical for us to learn the biological mechanism of SARS-CoV-2. By combining geographical data, SV information can serve as evidence for transmissions. Such mutations can also affect the effectiveness of COVID diagnosis and treatment. Therefore, a tool that can accurately detect SVs for SARS-CoV-2 at read level is needed. 
+
 # What is <this software>?
+
+CoronaSV is a pipeline for structural variation detection and validation for SARS-CoV-2 at read level. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
 
 Overview Diagram
 
