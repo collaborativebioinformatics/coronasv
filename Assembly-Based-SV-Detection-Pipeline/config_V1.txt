@@ -1,0 +1,4 @@
+{
+    "RefGenome_FA_PATH" : "___/References/____.fasta",
+    "RefGenome_GFF_PATH" : "___/References/____.gff",
+}

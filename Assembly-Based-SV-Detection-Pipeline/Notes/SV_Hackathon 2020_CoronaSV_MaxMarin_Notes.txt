@@ -1,0 +1,89 @@
+# CoronaSV - SV Hackathon 2020 - Max Marin Notes
+
+### Maximillian Marin
+### mgmarin@g.harvard.edu
+
+
+
+### Outline of initial steps to get setup ###
+
+#### A) Setup GitHub and init repo on Desktop
+#### B) Setup access to the DNA-Nexus service
+#### C) Setup Snakemake workflow for Assembly and SV calling 
+
+
+
+
+
+#### A) Setup GitHub and init repo on Desktop #####
+ 
+mkdir ~/Documents/SV_Hackathon2020
+cd ~/Documents/SV_Hackathon2020
+
+git clone https://github.com/collaborativebioinformatics/coronasv.git
+
+
+# Organize GitHub Repo Directories
+
+# Useful Links: 
+1) https://stackoverflow.com/questions/27702452/loop-through-a-comma-separated-shell-variable
+2) http://www.tldp.org/LDP/abs/html/string-manipulation.html
+
+
+### Make Directories:
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+
+cd ${CoronaSV_RepoDir}
+
+
+# Create GitIgnore for Repo
+
+touch .gitignore
+
+
+
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+mkdir ${MGM_CoronaSV_RepoDir}
+
+touch ${MGM_CoronaSV_RepoDir}/MGM_Assembly_Based_SV_Detection_Pipeline_README.md
+
+
+listOf_DIRs="JupyterNotebooks, Notes, Scripts, Plots, Data, References, Envs"
+
+for dir_name in ${listOf_DIRs//,/ }
+do
+    echo "Making ${dir_name} and README.md file"
+    mkdir ${MGM_CoronaSV_RepoDir}/${dir_name}
+    touch ${MGM_CoronaSV_RepoDir}/${dir_name}/${dir_name}_README.md
+done
+
+
+
+
+
+# Make LargeReferences Directory and add to .gitignore
+
+echo "coronasv/Assembly-Based-SV-Detection-Pipeline/References/*" >> .gitignore
+echo "coronasv/Assembly-Based-SV-Detection-Pipeline/Data/*" >> .gitignore
+echo "coronasv/Assembly-Based-SV-Detection-Pipeline/.snakemake/*" >> .gitignore
+
+
+
+###################### END A) ######################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
