@@ -90,7 +90,7 @@ A.2) [Nanofilt](https://github.com/wdecoster/nanofilt) was used to filter long r
 
 B) Mapping
 
-Long-reads was mapped to reference genome by SARS-CoV-2 reference by (minimap2)[https://github.com/lh3/minimap2]
+Long-reads was mapped to reference genome by SARS-CoV-2 reference by [minimap2](https://github.com/lh3/minimap2)
 
 C) SV calling for long-reads
 
