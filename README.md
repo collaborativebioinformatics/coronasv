@@ -28,24 +28,9 @@ Understanding structure variations in SARS-CoV-2 genomes is critical for us to l
 
 CoronaSV is a pipeline for structural variation detection and validation for SARS-CoV-2 at read level. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
 
-Overview Diagram
-![workflow](coronasv_workflow.png)
+# Overview Diagram
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![workflow](HackathonGroup3flowchart.png)
 
 # CoronaSV Pipeline Overview
 
