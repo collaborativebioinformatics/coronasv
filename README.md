@@ -6,8 +6,6 @@
 
 ![logo](CoronaSV_logo.png)
 
-## Website (if applicable)
-
 ## Intro statement
 
 CoronaSV is an SV detection and validation pipeline for SARS-CoV-2 samples.
