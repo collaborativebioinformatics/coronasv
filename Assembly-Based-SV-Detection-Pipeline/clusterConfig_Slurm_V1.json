@@ -1,0 +1,42 @@
+{
+    "__default__" :
+    {
+        "t" : "0-00:5:0",
+        "n" : 1,
+        "c" : 1,
+        "p" : "short",
+        "mem" : "4G",
+        "o" : "O2logs/cluster/{rule}.{wildcards}.out",
+        "e" : "O2logs/cluster/{rule}.{wildcards}.out"
+    },
+    "rename_SPAdesAssembly_WithBioAWK" :
+    {
+        "t" : "0-00:0:30",
+        "n" : 1,
+        "p" : "short",
+        "mem" : "1G",
+    },
+    "samtools_faidx_SPAdesAssembly" :
+    {
+        "t" : "0-00:1:00",
+        "n" : 1,
+        "p" : "short",
+        "mem" : "2G",
+    },
+    "trimmomatic_Illumina_PE_Trimming" :
+    {
+        "t" : "0-00:15:0",
+        "n" : 1,
+        "p" : "short",
+        "mem" : "4G",
+    },
+    "unicycler_SPAdes_Assemble_IlluminaWGS" :
+    {
+        "t" : "0-00:30:0",
+        "n" : 6,
+        "p" : "short",
+        "mem" : "10G",
+    },
+}
+
+

@@ -22,197 +22,33 @@ output_Dir = config["output_dir"]
 df = pd.read_csv( config["inputSampleData_TSV"], sep='\t')
 
 
-SampleIDTo_Nanopore_FQ_Dict = {}
+# Save a list of SRA/ENA "Run" Accessions
+input_SampleIDs_WiIllumina = list( df["Run"].values )
+#input_SampleIDs_WiNanopore = list( df["Run"].values )
 
-SampleIDTo_Illumina_FQ1_Dict = {}
-SampleIDTo_Illumina_FQ2_Dict = {}
-
-
-for idx, row in df.iterrows():
-    
-    
-    i_SampleID = row["SampleID"]
-    
-        
-    i_Nanopore_FQ = row["OxfordNanopore_FQ_PATH"]
-
-
-    if i_Nanopore_FQ != "None":
-        SampleIDTo_Nanopore_FQ_Dict[i_SampleID] = i_Nanopore_FQ
-
-
-
-    i_FastQ_Files = row["IlluminaPE_FQs"]
-    i_FastQ_Files_List = i_FastQ_Files.split(";")
-    
-    if len(i_FastQ_Files_List) == 2:
-        FQ_1_PATH, FQ_2_PATH = i_FastQ_Files_List
-
-        SampleIDTo_Illumina_FQ1_Dict[i_SampleID] = FQ_1_PATH
-        SampleIDTo_Illumina_FQ2_Dict[i_SampleID] = FQ_2_PATH
-    
-
-input_SampleIDs_WiNanopore = list(SampleIDTo_Nanopore_FQ_Dict.keys())
-input_SampleIDs_WiIllumina = list(SampleIDTo_Illumina_FQ1_Dict.keys())
-
-#print("SampleIDs with ONT data:", input_SampleIDs_WiNanopore)
-#print("SampleIDs with Illumina data:", input_SampleIDs_WiIllumina)
-
-#print(SampleIDTo_Nanopore_FQ_Dict)
 
 
 rule all:
     input:
-        expand(output_Dir + "/{sampleID_WiNanopore}/Nanopore/Nanopore_QC/{sampleID_WiNanopore}.NanoPlot/NanoPlot-report.html", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
-        expand(output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/{sampleID_WiNanopore}.Flye.Assembly.fasta.fai", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
-        #expand(output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_Meta/assembly.fasta.fai", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
-        #expand(output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_KeepHaplotypes/assembly.fasta.fai", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
-        #expand(output_Dir + "/{sampleID_WiNanopore}/Nanopore/Unicycler_Assembly/assembly.fasta", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
-        
         expand(output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta.fai", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-
         expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/Minimap2_GC3_PP_AlignTo_H37rv/{sampleID_WiIllumina}_mm2_GC3_PP_AssemblyToH37rv.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-
         expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/NucDiff_{sampleID_WiIllumina}_ref_struct.Filtered.SVs.gff", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
 
 
 
+rule download_Illumina_FQ_FromSRA_RunID:
+    output: 
+        FQ_1 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq",
+        FQ_2 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq",
 
-rule nanoplot_QC:
-    input:
-        ONT_reads_fq = lambda wildcards: SampleIDTo_Nanopore_FQ_Dict[wildcards.sampleID_WiNanopore],
-    output:
-         output_Dir + "/{sampleID_WiNanopore}/Nanopore/Nanopore_QC/{sampleID_WiNanopore}.NanoPlot/NanoPlot-report.html"
-    conda:
-        "Envs/nanoplot_128_Conda.yml"
-    threads: 2
-    shell:
-        "NanoPlot -t {threads} --fastq {input.ONT_reads_fq} -o {output_Dir}/{wildcards.sampleID_WiNanopore}/Nanopore/Nanopore_QC/{wildcards.sampleID_WiNanopore}.NanoPlot/"
-
-
-
-### A) Assembly with SPAdes through Unicycler
-rule unicycler_Assemble_Nanopore_WGS:
-    input:
-        ONT_reads_fq = lambda wildcards: SampleIDTo_Nanopore_FQ_Dict[wildcards.sampleID_WiNanopore],
-    output:
-        assembly_GFA = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Unicycler_Assembly/assembly.gfa",
-        assembly_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Unicycler_Assembly/assembly.fasta",
-    conda:
-        "Envs/unicycler_4_8.yml"
-    threads: 1
-    shell:
-        "unicycler --vcf -t {threads}   "
-        " -l {input.ONT_reads_fq}"
-        " -o {output_Dir}/{wildcards.sampleID_WiNanopore}/Nanopore/Unicycler_Assembly/ "
-        
-        # " ‑‑mode conservative " # This version of unicycler doesn't support the --mode arguement
-
-
-
-
-
-
-
-###################################################
-##### Flye (correct reads & create assembly) ######
-###################################################
-
-rule flye_Assemble:
-    input:
-        ONT_reads_fq = lambda wildcards: SampleIDTo_Nanopore_FQ_Dict[wildcards.sampleID_WiNanopore],
-    output:
-        ONT_Flye_Assembly_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/assembly.fasta",
-        ONT_Flye_Assembly_info_txt = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/assembly_info.txt"
-    conda:
-        "Envs/flye_2_8_Conda.yml"
-    threads: 2
-    shell:
-        "flye --nano-raw {input.ONT_reads_fq} --out-dir {output_Dir}/{wildcards.sampleID_WiNanopore}/Nanopore/Flye_Assembly/  --threads {threads}"
-
-
-
-rule rename_FlyeAssembly_WithBioAWK:
-    input:
-        ONT_Flye_Assembly_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/assembly.fasta",
-    output:
-        ONT_Flye_Assembly_Renamed_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/{sampleID_WiNanopore}.Flye.Assembly.fasta",
-
-    shell:
-        "bioawk -c fastx '{{ print \">{wildcards.sampleID_WiNanopore}_\"$name \"\\n\" $seq }}' {input} > {output}"
-
-
-
-rule samtools_faidx_FlyeAssembly:
-    input:
-        ONT_Flye_Assembly_Renamed_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/{sampleID_WiNanopore}.Flye.Assembly.fasta",
-    output:
-        output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly/{sampleID_WiNanopore}.Flye.Assembly.fasta.fai"
-    conda:
-        "Envs/samtools_AND_bcftools_200128_Conda.yml"
-    threads: 1
-    shell: "samtools faidx {input}"
-
-
-rule flye_Assemble_Meta:
-    input:
-        ONT_reads_fq = lambda wildcards: SampleIDTo_Nanopore_FQ_Dict[wildcards.sampleID_WiNanopore],
-    output:
-        ONT_Flye_Assembly_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_Meta/assembly.fasta",
-        ONT_Flye_Assembly_info_txt = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_Meta/assembly_info.txt"
-    conda:
-        "Envs/flye_2_8_Conda.yml"
-    threads: 2
-    shell:
-        "flye --nano-raw {input.ONT_reads_fq} --out-dir {output_Dir}/{wildcards.sampleID_WiNanopore}/Nanopore/Flye_Assembly_Meta/ --meta --threads {threads}"
-
-
-
-rule samtools_faidx_FlyeAssembly_Meta:
-    input:
-        output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_Meta/assembly.fasta"
-    output:
-        output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_Meta/assembly.fasta.fai"
-    conda:
-        "Envs/samtools_AND_bcftools_200128_Conda.yml"
-    threads: 1
-    shell: "samtools faidx {input}"
-
-
-
-rule flye_Assemble_KeepHaplotypes:
-    input:
-        ONT_reads_fq = lambda wildcards: SampleIDTo_Nanopore_FQ_Dict[wildcards.sampleID_WiNanopore],
-    output:
-        ONT_Flye_Assembly_fa = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_KeepHaplotypes/assembly.fasta",
-        ONT_Flye_Assembly_info_txt = output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_KeepHaplotypes/assembly_info.txt"
-    conda:
-        "Envs/flye_2_8_Conda.yml"
-    threads: 2
-    shell:
-        "flye --nano-raw {input.ONT_reads_fq} --out-dir {output_Dir}/{wildcards.sampleID_WiNanopore}/Nanopore/Flye_Assembly_KeepHaplotypes/ --keep-haplotypes --threads {threads}"
-
-
-rule samtools_faidx_FlyeAssembly_KeepHaplotypes:
-    input:
-        output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_KeepHaplotypes/assembly.fasta"
-    output:
-        output_Dir + "/{sampleID_WiNanopore}/Nanopore/Flye_Assembly_KeepHaplotypes/assembly.fasta.fai"
-    conda:
-        "Envs/samtools_AND_bcftools_200128_Conda.yml"
-    threads: 1
-    shell: "samtools faidx {input}"
-
-
-
-
-
-
-
-#SampleIDTo_Illumina_FQ1_Dict[i_SampleID] = FQ_1_PATH
-#        SampleIDTo_Illumina_FQ2_Dict[i_SampleID] = FQ_2_PATH
+    params:
+        target_Download_Dir = output_Dir + "/Illumina_PE_FQs/"
+    #conda: "Envs/sratools_2_10_7_Conda.yml"
     
-# lambda wildcards: SampleIDTo_Nanopore_FQ_Dict[wildcards.sampleID_WiNanopore],
+    shell:
+        "fastq-dump --split-files {wildcards.sampleID_WiIllumina} --outdir {params.target_Download_Dir} \n"
+
+
 
 
 
@@ -220,8 +56,8 @@ rule samtools_faidx_FlyeAssembly_KeepHaplotypes:
 # can move adapter list to config file later
 rule trimmomatic_Illumina_PE_Trimming:
     input:
-        r1 = lambda wildcards: SampleIDTo_Illumina_FQ1_Dict[wildcards.sampleID_WiIllumina],
-        r2 = lambda wildcards: SampleIDTo_Illumina_FQ2_Dict[wildcards.sampleID_WiIllumina],
+        r1 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq",
+        r2 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq",
     output:
         r1 = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_1_trimmed.fastq",
         r2 = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_2_trimmed.fastq",
@@ -235,12 +71,9 @@ rule trimmomatic_Illumina_PE_Trimming:
         trimmer=["ILLUMINACLIP:'References/CustomTrimmoatic_IlluminaWGS_AdapterList.fasta':2:30:10:2:true SLIDINGWINDOW:4:20 MINLEN:75"],
         # optional parameters
         # extra=" "
-    threads: 8
+    threads: 1
     wrapper:
         "0.38.0/bio/trimmomatic/pe"
-
-
-
 
 
 
@@ -260,13 +93,14 @@ rule unicycler_SPAdes_Assemble_IlluminaWGS:
         Ill_SPAdes_assembly_fa = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/assembly.fasta",
     conda:
         "Envs/unicycler_4_8.yml"
-    threads: 2
+    threads: 4
     shell:
-        "unicycler --vcf -t {threads}   "
+        "unicycler -t {threads}   "  # --vcf
         " -1 {input.fq1_trimmed} -2 {input.fq2_trimmed} "
         " -o {output_Dir}/{wildcards.sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/ "
         
         # " ‑‑mode conservative " # This version of unicycler doesn't support the --mode arguement
+
 
 
 rule rename_SPAdesAssembly_WithBioAWK:

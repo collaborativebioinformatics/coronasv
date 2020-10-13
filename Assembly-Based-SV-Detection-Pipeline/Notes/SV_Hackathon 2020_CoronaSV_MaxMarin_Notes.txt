@@ -9,7 +9,8 @@
 
 #### A) Setup GitHub and init repo on Desktop
 #### B) Setup access to the DNA-Nexus service
-#### C) Setup Snakemake workflow for Assembly and SV calling 
+#### C) Download test data LOCALLY
+#### D) Setup Snakemake workflow for Assembly and SV calling 
 
 
 
@@ -50,7 +51,7 @@ mkdir ${MGM_CoronaSV_RepoDir}
 touch ${MGM_CoronaSV_RepoDir}/MGM_Assembly_Based_SV_Detection_Pipeline_README.md
 
 
-listOf_DIRs="JupyterNotebooks, Notes, Scripts, Plots, Data, References, Envs"
+listOf_DIRs="JupyterNotebooks, Notes, Scripts, Plots, Data, References, Envs, runInfo_TSVs"
 
 for dir_name in ${listOf_DIRs//,/ }
 do
@@ -79,11 +80,177 @@ echo "coronasv/Assembly-Based-SV-Detection-Pipeline/.snakemake/*" >> .gitignore
 
 
 
+# Setting up the DNA Nexus Cloud workstation
+
+https://documentation.dnanexus.com/developer/cloud-workstations/cloud-workstation
+
+https://documentation.dnanexus.com/downloads#DNAnexus-Platform-SDK
+
+https://documentation.dnanexus.com/getting-started/tutorials/cli-quickstart
+
+
+# 1) Login to DNA Nexus from the commandline
+dx login 
+
+Username: mgmarin5
+Password: ****
+
+# 2) Config SSH
+dx ssh_config
+
+### Choose project
+dx select coronasv
+
+
+# Connect to Workstation through SSH
+
+dx run app-cloud_workstation --ssh
+
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+bash Miniconda3-latest-Linux-x86_64.sh
+
+source ~/.bashrc
+
+
+
+https://docs.conda.io/en/latest/miniconda.html#linux-installers
+
+conda 
+
+unset DX_WORKSPACE_ID
+
+dx cd $DX_PROJECT_CONTEXT_ID:
+
+dx download
 
 
 
 
 
+
+
+
+
+
+#### C) Download test data LOCALLY
+
+# Download:
+### 1 ONT Run (1 FASTQ)
+### 1 Illumina Run (2 FASTQs)
+
+
+
+
+
+#### D) Setup Snakemake workflow for Assembly and SV calling 
+
+
+
+CoronaSV_InputData_TestDir="/mnt/HD1TB/CoronaSV_InputData_V1"
+
+
+mkdir ${CoronaSV_InputData_TestDir}
+
+cd ${CoronaSV_InputData_TestDir}
+
+
+### https://www.ncbi.nlm.nih.gov/sra/SRX7777160
+
+### SRR11140750 
+
+### SRS6189914_1.fastq as SRR11140750_1.fastq
+### SRS6189914_2.fastq as SRR11140750_2.fastq
+
+
+
+dx download raw_input/SRS6189914_1.fastq -o SRR11140750_1.fastq
+dx download raw_input/SRS6189914_2.fastq -o SRR11140750_2.fastq
+
+
+
+
+# Nanopore Data - (swab_ONT)
+
+### SRR11140751
+
+SRS6189915.fastq as SRR11140751.fastq
+
+dx download raw_reads_sars_cov_2/SRS6189915.fastq -o SRR11140751.fastq
+
+
+# Nanopore Data - (SARS-CoV-2 veroSTAT-1KO_ONT)
+
+### SRR11140745
+
+SRS6189920.fastq as SRR11140745.fastq
+
+dx download raw_reads_sars_cov_2/SRS6189920.fastq -o SRR11140745.fastq
+
+
+
+
+
+
+
+# Installing Snakemake and other software (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+
+conda create -c conda-forge -c bioconda -n SV_Hack_V1 mamba
+
+
+conda activate SV_Hack_V1
+
+
+conda install snakemake 
+
+#mamba install samtools bcftools openssl=1.0 bioawk jupyterlab pandas numpy matplotlib seaborn
+
+
+conda install -c conda-forge minimap2 bcftools bioawk jupyterlab pandas matplotlib seaborn
+
+
+
+## Unicycler
+
+conda create -n unicycler_4_8 -c bioconda unicycler bcftools
+
+conda activate unicycler_4_8
+
+conda env export > Envs/unicycler_4_8.yml
+
+
+
+
+
+
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_RepoDir}
+
+mkdir ${targetOutput_Dir}
+
+inputConfigFile="./SMK_config_V1.txt"
+
+
+#input_SampleInfo_TSV="./runInfo_TSVs/Test_RunInfo_1Illumina_1ONT.tsv"
+
+input_SampleInfo_TSV="./runInfo_TSVs/Test_RunInfo_1Illumina_1ONT_V2.tsv"
+
+
+targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V1"
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 2 
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_1_ONT_1_Illumina_dag.svg
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --use-conda --cores 3 
 
 
 

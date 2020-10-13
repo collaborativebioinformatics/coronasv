@@ -1,0 +1,3 @@
+SampleID	OxfordNanopore_FQ_PATH	IlluminaPE_FQs
+SRR11140745	/mnt/HD1TB/CoronaSV_InputData_V1/SRR11140745.fastq	None
+SRR11140750	None	/mnt/HD1TB/CoronaSV_InputData_V1/SRR11140750_1.fastq;/mnt/HD1TB/CoronaSV_InputData_V1/SRR11140750_2.fastq
