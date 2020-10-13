@@ -226,12 +226,11 @@ rule SVanalyzer_SVrefine_Ill_SPAdes_Assembly_AlignTo_Ref:
         SVrefine_Ill_SPAdes_Assembly_VCF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/SVanalyzer_SVrefine_Ill_SPAdes_Assembly_SV_Calling/"
     threads: 1
     shell:
-        "SVrefine --delta "
-        "--ref_fasta {input.Ref_FA}"
+        "SVrefine --delta {input.input_MUMmer_Delta_Aln_File} "
+        "--ref_fasta {input.Ref_FA} "
         "--query_fasta {input.Ill_SPAdes_Assembly_Renamed_fa} "
         "--outvcf {output.SVrefine_Ill_SPAdes_Assembly_VCF} "
-        "--refname 'NC_045512.2' --samplename {wildcards.sampleID_WiIllumina}"
-
+        "--refname 'NC_045512.2' --samplename {wildcards.sampleID_WiIllumina} "
 
 
 
