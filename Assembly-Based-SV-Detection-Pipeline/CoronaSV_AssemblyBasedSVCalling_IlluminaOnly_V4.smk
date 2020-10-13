@@ -25,9 +25,9 @@ df = pd.read_csv( config["inputSampleData_TSV"], sep='\t')
 
 CoronaSV_Metadata_All_DF = pd.read_csv(  config["inputSampleData_TSV"]  , sep = "\t")
 
-CoronaSV_Metadata_ONT_DNA_DF = CoronaSV_Metadata_All_DF[  (CoronaSV_Metadata_All_DF["Platform"] == "OXFORD_NANOPORE") & (CoronaSV_Metadata_All_DF["Assay_Type"] != "RNA-Seq") ]           
+CoronaSV_Metadata_ONT_DNA_DF = CoronaSV_Metadata_All_DF[  (CoronaSV_Metadata_All_DF["Platform"] == "NANOPORE") ]           
 
-CoronaSV_Metadata_Illumina_PE_DF = CoronaSV_Metadata_All_DF[ (CoronaSV_Metadata_All_DF["LibraryLayout"] == "PAIRED") & (CoronaSV_Metadata_All_DF["Platform"] == "ILLUMINA") & (CoronaSV_Metadata_All_DF["Assay_Type"] != "RNA-Seq") ]           
+CoronaSV_Metadata_Illumina_PE_DF = CoronaSV_Metadata_All_DF[ (CoronaSV_Metadata_All_DF["Platform"] == "ILLUMINA") ]           
 
 
 
@@ -35,47 +35,18 @@ CoronaSV_Metadata_Illumina_PE_DF = CoronaSV_Metadata_All_DF[ (CoronaSV_Metadata_
 input_SampleIDs_WiIllumina = list( CoronaSV_Metadata_Illumina_PE_DF["Run"].values )
 input_SampleIDs_WiNanopore = list( CoronaSV_Metadata_ONT_DNA_DF["Run"].values )
 
-print(len(input_SampleIDs_WiIllumina))
-print(len(input_SampleIDs_WiNanopore))
+#print(len(input_SampleIDs_WiIllumina))
+#print(len(input_SampleIDs_WiNanopore))
 
 
 rule all:
     input:
         #expand(output_Dir + "/Nanopore_FQs/{sampleID_WiNanopore}.fastq", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
-        expand(output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-        expand(output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        #expand(output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        #expand(output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
         expand(output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta.fai", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
         expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/Minimap2_Alignment/{sampleID_WiIllumina}.minimap2.paftools.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
         expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}_ref_snps.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-
-
-
-rule download_Illumina_FQ_FromSRA_RunID:
-    output: 
-        FQ_1 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq",
-        FQ_2 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq",
-
-    params:
-        target_Download_Dir = output_Dir + "/Illumina_PE_FQs/"
-    #conda: "Envs/sratools_2_10_7_Conda.yml"
-    
-    shell:
-        "fastq-dump --split-files {wildcards.sampleID_WiIllumina} --outdir {params.target_Download_Dir} \n"
-
-
-
-
-rule download_Nanopore_FQ_FromSRA_RunID:
-    output: 
-        ONT_FQ = output_Dir + "/Nanopore_FQs/{sampleID_WiNanopore}.fastq",
-
-    params:
-        target_Download_Dir = output_Dir + "/Nanopore_FQs/"
-    #conda: "Envs/sratools_2_10_7_Conda.yml"
-    
-    shell:
-        "fastq-dump {wildcards.sampleID_WiNanopore} --outdir {params.target_Download_Dir} \n"
-
 
 
 
@@ -219,12 +190,13 @@ rule NucDiff_Ill_SPAdes_Assembly_AlignTo_Ref_WithVCFoutput:
 
 rule SVanalyzer_SVrefine_Ill_SPAdes_Assembly_AlignTo_Ref:
     input:
-        input_MUMmer_Delta_Aln_File = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/{sampleID_WiIllumina}.NucDiff.delta",
+        input_MUMmer_Delta_Aln_File = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/___",
         Ill_SPAdes_Assembly_Renamed_fa = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta",
         Ref_FA = refGenome_FA_PATH,
     output:
         SVrefine_Ill_SPAdes_Assembly_VCF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/SVanalyzer_SVrefine_Ill_SPAdes_Assembly_SV_Calling/"
     threads: 1
+    
     shell:
         "SVrefine --delta "
         "--ref_fasta {input.Ref_FA}"
