@@ -190,6 +190,32 @@ dx download raw_reads_sars_cov_2/SRS6189920.fastq -o SRR11140745.fastq
 
 
 
+# Let's try to download some data with 
+
+conda activate sratools_2_10_7
+
+fastq-dump --split-files SRR11140745
+
+
+conda activate sratools_2_10_7
+
+cd /n/scratch3/users/m/mm774/
+
+target_FQ_Dump_Dir="/n/scratch3/users/m/mm774/FQ_Dump_CoronaSV_TestDir"
+
+mkdir ${target_FQ_Dump_Dir}
+
+cd ${target_FQ_Dump_Dir}
+
+fastq-dump --split-files SRR11140750 --outdir ${target_FQ_Dump_Dir}
+
+
+fastq-dump --split-files SRR11140745 --outdir ${target_FQ_Dump_Dir}
+
+fastq-dump SRR11140745 --outdir ${target_FQ_Dump_Dir}
+
+
+
 
 
 
@@ -208,6 +234,38 @@ conda install snakemake
 
 conda install -c conda-forge minimap2 bcftools bioawk jupyterlab pandas matplotlib seaborn
 
+conda install sra-tools
+
+conda install svanalyzer
+
+
+
+## svanalyzer - SVrefine
+
+
+SVrefine -man
+
+SVrefine --delta <path to delta file of alignments> --regions <path to BED-formatted file of regions> --ref_fasta <path to reference multi-FASTA file> --query_fasta <path to query multi-FASTA file> --outvcf <path to output VCF file> --svregions <path to bed file of widened SV regions> --outref <path to bed file of homozygous reference regions> --nocov <path to bed file of regions with no coverage> --includeseqs
+
+
+
+SVrefine
+ --delta <path to delta file of alignments>
+ --regions <path to BED-formatted file of regions>
+ --ref_fasta <path to reference multi-FASTA file>
+ --query_fasta <path to query multi-FASTA file>
+ --outvcf <path to output VCF file>
+ --svregions <path to output BED file of SV regions>
+ --outref <path to bed file of homozygous reference regions>
+ --refname "NC_045512.2"
+ --samplename {SAMPLE_ID}
+
+
+
+
+
+
+
 
 
 ## Unicycler
@@ -217,6 +275,29 @@ conda create -n unicycler_4_8 -c bioconda unicycler bcftools
 conda activate unicycler_4_8
 
 conda env export > Envs/unicycler_4_8.yml
+
+
+
+
+
+
+conda activate SV_Hack_V1
+
+
+Cov2_Ref="CovidRef.fasta"
+
+
+
+cd /home/mgmarin/Documents/SV_Hackathon_InitTest
+
+minimap2 -ax asm5 ${Cov2_Ref} SRR11140745_SPAdes_Assembly.fasta > SRR11140745_SPAdes_Assembly.sam
+
+samtools view -bS SRR11140745_SPAdes_Assembly.sam | samtools sort - > SRR11140745_SPAdes_Assembly.bam
+
+samtools index SRR11140745_SPAdes_Assembly.bam
+
+
+
 
 
 
@@ -244,13 +325,130 @@ input_SampleInfo_TSV="./runInfo_TSVs/Test_RunInfo_1Illumina_1ONT_V2.tsv"
 
 targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V1"
 
-snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 2 
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 3 
 
 
 snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_1_ONT_1_Illumina_dag.svg
 
 
 snakemake -s CoronaSV_AssemblyBasedSVCalling_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --use-conda --cores 3 
+
+
+
+
+
+
+
+
+
+
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_RepoDir}
+
+mkdir ${targetOutput_Dir}
+
+inputConfigFile="./SMK_config_V1.txt"
+
+
+input_SampleInfo_TSV="./runInfo_TSVs/201013_CoronaSV_Metadata_V2_Ten_Illumina_PE_Runs_Only_TestSubset.tsv"
+
+
+targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V2"
+
+mkdir ${targetOutput_Dir}
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V2.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 3 
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V2.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_10_IlluminaRuns_dag.svg
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V2.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --use-conda --cores 3 
+
+
+
+
+### NOTE: Assembly is working for the 10 Illumina WGS PE runs
+
+
+
+# Next steps:
+
+1) Pull & Push changes to github repo
+2) Write jupyter notebook which parses the MetaData TSV into 2 categories
+
+	A) Illumina WGS PE of SARS-Cov-2 
+	B) ONT WGS of SARS-Cov-2
+
+2.B) Additionally, write code which creates two Pandas Dataframes (1 each for ONT and Illumina WGS RunIDs)
+
+
+3) Move Repo to O2
+
+4) Get pipeline running on O2
+
+
+
+
+
+#### 2) Write jupyter notebook which parses the MetaData TSV into 2 categories
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+cd ${MGM_CoronaSV_RepoDir}
+
+
+
+
+
+
+
+
+
+
+#### 
+
+
+cd /n/data1/hms/dbmi/farhat/mm774/Snakemake_Pipelines
+
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_RepoDir}
+
+mkdir ${targetOutput_Dir}
+
+inputConfigFile="./SMK_config_V1.txt"
+
+
+#input_SampleInfo_TSV="./runInfo_TSVs/201013_CoronaSV_Metadata_V2_Ten_Illumina_PE_Runs_Only_TestSubset.tsv"
+input_SampleInfo_TSV="./runInfo_TSVs/201013_CoronaSV_Metadata_V1.tsv"
+
+
+targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V2"
+
+mkdir ${targetOutput_Dir}
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V3.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 3 
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V3.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_10_IlluminaRuns_dag.svg
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_V3.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --use-conda --cores 3 
+
+
 
 
 
