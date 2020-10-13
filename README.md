@@ -80,6 +80,10 @@ C.3) [Lumpy](https://github.com/arq5x/lumpy-sv)
 
 Lumpy integrates multiple SV signals (read-pair, split-read, read-depth) to identify deletions, tandem duplications, inversions and translocations in short-read sequencing. 
 
+C.4) [Tardis](https://github.com/BilkentCompGen/tardis)
+
+Tardis uses multiple SV signatures such as read-pair, read-depth and split-read to discover various SV types using paired-end Illumina data. These include deletions, inversions, MEIs, tandem and interspersed duplications in forward and reverse orientations. 
+
 ## SV calling from long-reads
 
 A) Filtering
