@@ -170,11 +170,7 @@ C.2) [SVIM](https://github.com/eldariont/svim)
 
 SVIM is able to detect, classify and genotype five different classes of structural variants.  SVIM works better on integrating information from across the genome to precisely distinguish similar events, such as tandem and interspersed duplications and simple insertions.
 
-C.3) [nanoSV](https://github.com/mroosmalen/nanosv)
-
-NanoSV identifies split- and gapped-aligned reads and clusters the reads according to the orientations and genomic positions of the read segments to define breakpoint-junctions of structural variations.
-
-C.4) [cuteSV](https://github.com/tjiangHIT/cuteSV) 
+C.3) [cuteSV](https://github.com/tjiangHIT/cuteSV) 
 
 cuteSV uses tailored methods to collect the signatures of various types of SVs and employs a clustering-and-refinement method to analyze the signatures to implement sensitive SV detection.
 
