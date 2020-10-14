@@ -84,7 +84,7 @@ Sequencing data from multiple sequencing technologies and library prep strategie
 
 # CoronaSV Pipeline Overview
 
-![workflow](HackathonGroup3flowchart.png)
+![workflow](CoronaSV_workflow_final.png)
 
 
 ## Data download
