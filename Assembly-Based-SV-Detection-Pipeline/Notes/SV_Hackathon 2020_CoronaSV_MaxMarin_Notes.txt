@@ -239,6 +239,19 @@ conda install sra-tools
 conda install svanalyzer
 
 
+## EXPORT SV_Hack_V1 environment ##
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_RepoDir}
+
+conda env export > Envs/SV_Hack_V1.yml 
+
+
 
 ## svanalyzer - SVrefine
 
@@ -414,39 +427,222 @@ cd ${MGM_CoronaSV_RepoDir}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+-o
+
+
+
+
+
+
 #### 
+
+## Clone repo and create "SV_Hack_V1" conda env
 
 
 cd /n/data1/hms/dbmi/farhat/mm774/Snakemake_Pipelines
 
+git clone https://github.com/collaborativebioinformatics/coronasv.git
+
+
+Corona_SV_O2_Dir="/n/data1/hms/dbmi/farhat/mm774/Snakemake_Pipelines/coronasv"
+MGM_CoronaSV_O2_RepoDir="${Corona_SV_O2_Dir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_O2_RepoDir}
+
+
+conda env create -f ./Envs/SV_Hack_V1.yml -n SV_Hack_V1
+
+
+
+
+
+
+
+# 1) Login to DNA Nexus from the commandline
+dx login 
+
+Username: mgmarin5
+Password: ****
+
+# 2) Config SSH
+dx ssh_config
+
+### Choose project
+dx select coronasv
+
+
+
+
+
+cd ${MGM_CoronaSV_O2_RepoDir}
+
+cd /n/scratch3/users/m/mm774/CoronaSV_Analysis_OutputDir_V3
+
+dx download --recursive raw_reads_sars_cov_2/
+
+### NEW LOCATION OF DOWNLOADED READS
+
+
+/n/scratch3/users/m/mm774/CoronaSV_Analysis_OutputDir_V3/raw_reads_sars_cov_2/
+
+
+
+srun -p priority --pty -n 1 --mem 3G -t 0-11:59 /bin/bash
+
 
 conda activate SV_Hack_V1
 
-CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
-MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+Corona_SV_O2_Dir="/n/data1/hms/dbmi/farhat/mm774/Snakemake_Pipelines/coronasv"
+MGM_CoronaSV_O2_RepoDir="${Corona_SV_O2_Dir}/Assembly-Based-SV-Detection-Pipeline"
 
 
-cd ${MGM_CoronaSV_RepoDir}
+cd ${MGM_CoronaSV_O2_RepoDir}
 
-mkdir ${targetOutput_Dir}
 
 inputConfigFile="./SMK_config_V1.txt"
 
-
-#input_SampleInfo_TSV="./runInfo_TSVs/201013_CoronaSV_Metadata_V2_Ten_Illumina_PE_Runs_Only_TestSubset.tsv"
-input_SampleInfo_TSV="./runInfo_TSVs/201013_CoronaSV_Metadata_V1.tsv"
+input_Slurm_Cluster_Config="./clusterConfig_Slurm_V1.json"
 
 
-targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V2"
+input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_PairedData_ONT_And_Illumina_ONLY.tsv"
+
+
+targetOutput_Dir="/n/scratch3/users/m/mm774/CoronaSV_Analysis_OutputDir_V3"
 
 mkdir ${targetOutput_Dir}
 
-snakemake -s CoronaSV_AssemblyBasedSVCalling_V3.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 3 
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --cores 3 
 
 
-snakemake -s CoronaSV_AssemblyBasedSVCalling_V3.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_10_IlluminaRuns_dag.svg
 
-snakemake -s CoronaSV_AssemblyBasedSVCalling_V3.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --use-conda --cores 3 
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_10_IlluminaRuns_dag.svg
+
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --cores 1 --use-conda
+
+
+## Run on O2
+
+mkdir -p ${targetOutput_Dir}/O2logs/cluster/
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --use-conda -j 30 --cluster-config ${input_Slurm_Cluster_Config} --cluster "sbatch -p {cluster.p} -n {cluster.n}  -t {cluster.t} --mem {cluster.mem} -o {cluster.o} -e {cluster.e}" --latency-wait 20 -k 
+
+
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p -j 30 --cluster-config ${input_Slurm_Cluster_Config} --cluster "sbatch -p {cluster.p} -n {cluster.n}  -t {cluster.t} --mem {cluster.mem} -o {cluster.o} -e {cluster.e}" --latency-wait 20 -k --rerun-incomplete
+
+
+
+
+
+
+
+
+#
+#### O2 is not working!!!
+
+
+
+### SOLUTION: USE DNAnexus resources!!!
+
+
+
+
+
+# Connect to Workstation through SSH
+
+dx run --instance-type-help
+
+
+
+#dx run --instance-type mem1_ssd1_x16 app-cloud_workstation --ssh 
+
+dx run app-cloud_workstation --ssh 
+
+
+unset DX_WORKSPACE_ID
+dx cd $DX_PROJECT_CONTEXT_ID:
+
+
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+bash Miniconda3-latest-Linux-x86_64.sh
+
+source ~/.bashrc
+
+
+
+
+cd ~
+
+git clone https://github.com/collaborativebioinformatics/coronasv.git
+
+
+Corona_SV_O2_Dir="/home/dnanexus/coronasv"
+MGM_CoronaSV_O2_RepoDir="${Corona_SV_O2_Dir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_O2_RepoDir}
+
+
+conda env create -f ./Envs/SV_Hack_V1.yml -n SV_Hack_V1
+
+
+
+
+
+
+
+conda activate SV_Hack_V1
+
+Corona_SV_O2_Dir="/home/dnanexus/coronasv"
+MGM_CoronaSV_O2_RepoDir="${Corona_SV_O2_Dir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_O2_RepoDir}
+
+
+inputConfigFile="./SMK_config_V1.txt"
+
+input_Slurm_Cluster_Config="./clusterConfig_Slurm_V1.json"
+
+
+input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_PairedData_ONT_And_Illumina_ONLY.tsv"
+
+
+targetOutput_Dir="/n/scratch3/users/m/mm774/CoronaSV_Analysis_OutputDir_V3"
+
+mkdir ${targetOutput_Dir}
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np  
+
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_10_IlluminaRuns_dag.svg
+
+
+
+snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -p --cores 8 --use-conda
+
+
+
 
 
 
