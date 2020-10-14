@@ -48,12 +48,11 @@ conda activate CoronaSV
 
 ## A quick example of how to run CoronaSV
 
-The example below runs CoronaSV on all SRA Run Accessions defined in the "Sample Info TSV" file.
+The example below runs CoronaSV on all SRA Run Accessions defined in the 'Metadata_TSV' file.
 
-In this case the Sample Info TSV is ./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv, which contains 1 Nanopore sequencing run and 1 Illumina sequencing run of a SARS-Cov-2 isolate.
+In this case the Metadata TSV is defined as './runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv', which contains 1 Nanopore sequencing run and 1 Illumina sequencing run of a SARS-Cov-2 isolate.
 
 ```
-
 conda activate CoronaSV
 
 # Enter "coronasv" git repository directory
@@ -73,10 +72,9 @@ mkdir ${target_Output_Dir}
 
 # Run 
 snakemake -s CoronaSV_V1.smk --config output_dir=${target_Output_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -p --use-conda --cores 4 
-
 ``` 
 
-If you would like to run CoronaSV on all samples identified in our metadata file, change the definition of the "input_SampleInfo_TSV" bash variaible:
+If you would like to run CoronaSV on all samples identified in our metadata file, change the definition of the 'input_SampleInfo_TSV' bash variaible:
 
 ```
 input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
