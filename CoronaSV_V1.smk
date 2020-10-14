@@ -55,9 +55,9 @@ rule all:
         expand(output_Dir + "/Nanopore_MM2_svim/{sampleID_WiNanopore}/variants.vcf", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
         expand(output_Dir + "/Nanopore_MM2_cuteSV/{sampleID_WiNanopore}.cuteSV.vcf", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
 
-        expand(output_Dir +"results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-        expand(output_Dir +"results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-        expand(output_Dir +"results/variants_lumpy/{sampleID_WiIllumina}.bwa.rg.dedup.lumpy.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina)
+        expand(output_Dir +"/results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        expand(output_Dir +"/results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        expand(output_Dir +"/results/variants_lumpy/{sampleID_WiIllumina}.bwa.rg.dedup.lumpy.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina)
 
 
 
@@ -370,7 +370,7 @@ rule bwa:
     fq2_trimmed = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_2_trimmed.fastq",
     reference = refGenome_FA_PATH +".bwt",
   output:
-    sam = temp(output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.sam")
+    sam = temp(output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.sam")
   params:
     reference = refGenome_FA_PATH
   threads: 5
@@ -381,9 +381,9 @@ rule bwa:
 
 rule sam2bam:
   input:
-    sam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.sam"
+    sam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.sam"
   output:
-    bam = temp(output_Dir +"results/alignments/{sampleID_WiIllumina}.bwa.bam")
+    bam = temp(output_Dir +"/results/alignments/{sampleID_WiIllumina}.bwa.bam")
   shell:
     """
     samtools view -Sb {input.sam} | samtools sort > {output.bam}
@@ -393,9 +393,9 @@ rule sam2bam:
 
 rule read_groups:
   input:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.bam"
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.bam"
   output:
-    bam = temp(output_Dir +"results/alignments/{sampleID_WiIllumina}.bwa.rg.bam")
+    bam = temp(output_Dir +"/results/alignments/{sampleID_WiIllumina}.bwa.rg.bam")
   shell:
     """
     picard AddOrReplaceReadGroups I={input.bam} O={output.bam} RGID=1 RGLB=lib RGPL=ILLUMINA RGPU=unit1 RGSM=Sample1
@@ -403,11 +403,11 @@ rule read_groups:
 
 rule deduplicate:
   input:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.bam"
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.bam"
   output:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
   params:
-    txt = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.txt"
+    txt = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.txt"
 
   shell:
     """
@@ -416,9 +416,9 @@ rule deduplicate:
 
 rule bam_index:
   input:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
   output:
-    bam_index = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai"
+    bam_index = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai"
   shell:
     """
     samtools index {input.bam}
@@ -428,33 +428,42 @@ rule bam_index:
 
 rule delly:
   input:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam",
-    bai = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai",
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam",
+    bai = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai",
     ref_FA = refGenome_FA_PATH
   output:
-    vcf = output_Dir + "results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.vcf"
+    bcf = output_Dir + "/results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.bcf"
   params:
-    bcf = output_Dir + "results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.bcf"
   conda:
     "Envs/SV_Hack_V1_ShortRead_SV_Calling.yml"
   shell:
-    """
-    delly call -g {input.ref_FA} {input.bam} -o {params.bcf}
-    bcftools view {params.bcf} > {output.vcf}
-    """
+    "delly call -g {input.ref_FA} {input.bam} -o {output.bcf} "
+
+
+rule delly_BCF_To_VCF:
+    input:
+        bcf = output_Dir + "/results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.bcf"
+    output:
+        vcf = output_Dir + "/results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.vcf"
+    shell:
+      "bcftools view {input.bcf} > {output.vcf}"
+
+
+
+
 
 # SV calling with Manta
 
 rule manta:
   input:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam",
-    bai = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai",
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam",
+    bai = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai",
     ref_FA = refGenome_FA_PATH
   output:
-    output_Dir + "results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf"
+    output_Dir + "/results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf"
   params:
-    outdir = output_Dir + "results/variants_manta/{sampleID_WiIllumina}",
-    output = output_Dir + "results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf.gz"
+    outdir = output_Dir + "/results/variants_manta/{sampleID_WiIllumina}",
+    output = output_Dir + "/results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf.gz"
   conda:
     "Envs/SV_Hack_V1_ShortRead_SV_Calling.yml"
   shell:
@@ -468,9 +477,9 @@ rule manta:
 
 rule lumpy:
   input:
-    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
+    bam = output_Dir + "/results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
   output:
-    output_Dir + "results/variants_lumpy/{sampleID_WiIllumina}.bwa.rg.dedup.lumpy.vcf"
+    output_Dir + "/results/variants_lumpy/{sampleID_WiIllumina}.bwa.rg.dedup.lumpy.vcf"
   conda:
     "Envs/SV_Hack_V1_ShortRead_SV_Calling.yml"
   shell:
