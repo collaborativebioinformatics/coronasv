@@ -18,7 +18,7 @@ CoronaSV takes both short and long read datasets as input, followed by the quali
 
 ## Installation of CoronaSV
 
-### Installing CoronaSV from Github
+### Installing CoronaSV from Github (Using [conda](https://github.com/conda/conda))
 
 Clone the CoronaSV Github repository, and then use conda to create an environment with all neede software. This Conda environment includes all of the core software used by the pipeline + the Snakemake workflow management system.
 
@@ -40,7 +40,7 @@ That's it! You should now have the CoronaSV environment activated.
 
 
 
-### A quick example of how to run CoronaSV
+### A quick example of how to run CoronaSV (Using [SnakeMake](https://snakemake.github.io/))
 
 The example below runs CoronaSV on all SRA Run Accessions defined in the 'Metadata_TSV' file.
 
