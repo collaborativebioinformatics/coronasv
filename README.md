@@ -47,7 +47,7 @@ That's it! You should now have the CoronaSV environment activated.
 
 The example below runs CoronaSV on all SRA Run Accessions defined in the 'Metadata_TSV' file.
 
-In this case the Metadata TSV is defined as './runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv', which contains 1 Nanopore sequencing run and 1 Illumina sequencing run of a SARS-Cov-2 isolate.
+In this case the Metadata TSV is defined as ['./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv'](runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv'), which contains 1 Nanopore sequencing run and 1 Illumina sequencing run of a SARS-Cov-2 isolate.
 
 ```
 conda activate CoronaSV
