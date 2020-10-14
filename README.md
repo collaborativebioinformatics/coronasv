@@ -191,4 +191,4 @@ SV callsets were compared and integrated using [SURVIVOR](https://github.com/fri
 ![longhh-reads](https://github.com/collaborativebioinformatics/coronasv/blob/main/long_reads_pipeline/long-reads-statistics.png)
 
 ### SV distribution of shor-read data
-<img src="short-reads-pipeline/short-reads-stats.png" width="300" />
+![short-reads](short-reads-pipeline/short-reads-stats.png)
