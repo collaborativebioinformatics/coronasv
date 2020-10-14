@@ -12,8 +12,7 @@ CoronaSV is a structural variation detection and validation pipeline for SARS-Co
 
 ## What is CoronaSV?
 CoronaSV is an SV detection and validation pipeline for SARS-CoV-2 sequencing data (Illumina Paired-End & Oxford Nanopore Long Read Sequencing).
-
-CoronaSV is a pipeline for structural variation detection and validation within SARS-CoV-2 genomes. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
+CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using [SURVIVOR](https://github.com/fritzsedlazeck/SURVIVOR).
 
 
 # How to install and run CoronaSV
