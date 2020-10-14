@@ -1,0 +1,4 @@
+{
+    "RefGenome_FA_PATH" : "References/SARS_2CoV_2.fasta",
+    "RefGenome_GFF_PATH" : "References/GCF_009858895.2_ASM985889v3_genomic.gff",
+}
