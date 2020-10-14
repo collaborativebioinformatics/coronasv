@@ -35,6 +35,9 @@ CoronaSV_Metadata_Illumina_PE_DF = CoronaSV_Metadata_All_DF[ (CoronaSV_Metadata_
 input_SampleIDs_WiIllumina = list( CoronaSV_Metadata_Illumina_PE_DF["Run"].values )
 input_SampleIDs_WiNanopore = list( CoronaSV_Metadata_ONT_DNA_DF["Run"].values )
 
+#Remove the 1 RNA-seq sample included in analysis
+input_SampleIDs_WiIllumina = input_SampleIDs_WiIllumina.remove('ERR4173381')
+
 #print(len(input_SampleIDs_WiIllumina))
 #print(len(input_SampleIDs_WiNanopore))
 
