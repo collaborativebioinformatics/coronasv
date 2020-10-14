@@ -15,11 +15,8 @@ CoronaSV is an SV detection and validation pipeline for SARS-CoV-2 sequencing da
 CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using [SURVIVOR](https://github.com/fritzsedlazeck/SURVIVOR).
 
 
-# How to install and run CoronaSV
-# Installation options:
 
 ## Installation of CoronaSV
-
 
 ### Installing CoronaSV from Github
 
@@ -43,7 +40,7 @@ That's it! You should now have the CoronaSV environment activated.
 
 
 
-## A quick example of how to run CoronaSV
+### A quick example of how to run CoronaSV
 
 The example below runs CoronaSV on all SRA Run Accessions defined in the 'Metadata_TSV' file.
 
