@@ -1,28 +1,18 @@
 # CoronaSV
+![logo](CoronaSV_logo.png)
 
 *Hackathon team: Daniel Agustinho, Daniela Soto, Max Marin, Shangzhe Zhang, Todd Treangen, Yunxi Liu*
 
-## Awesome Logo
-
-![logo](CoronaSV_logo.png)
-
-## Intro statement
-
-CoronaSV is an SV detection and validation pipeline for SARS-CoV-2 samples.
-
 ## What's the problem?
 
-Deletions have been reported in several SARS-CoV-2 genomes, primarily detected at the consensus/assembly level. Existing methods of detecting structural variation at read level often suffer from false positive calls, and sample analysis with different SV calling pipelines would result in inconsistent calls. However, accurate and trustable SV calls at read level are required for SARS-CoV-2 downstream analysis. 
-
-## Why should we solve it?
-
-Understanding structure variations in SARS-CoV-2 genomes is critical for us to learn the biological mechanism of SARS-CoV-2. By combining geographical data, SV information can serve as evidence for transmissions. Such mutations can also affect the effectiveness of COVID diagnosis and treatment. Therefore, a tool that can accurately detect SVs for SARS-CoV-2 at read level is needed. 
-
-# What is <this software>?
-
-CoronaSV is a pipeline for structural variation detection and validation for SARS-CoV-2 at read level. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
+  Deletions have been reported in several SARS-CoV-2 genomes, primarily detected at the consensus/assembly level. The level of confidence in how these deletions are detected have not yet thoroughly been evaluated.  Existing methods for detecting structural variation at the individual read level often suffer from false positive calls. Additionally analysis with different SV calling pipelines often result in inconsistent calls. In order to examine the landscape and extent of structural variation across SARS-Cov-2 genomes, a method for generating accurate and trustworthy SV calls is needed. With this in mind, we developed the CoronaSV bioinformatics pipeline.
+  CoronaSV is a structural variation detection and validation pipeline for SARS-CoV-2 that combines an ensemble of structural variant calling approaches using both long read and short read sequencing technologies. Both assembly based and read based structural variant detection detection methods are used by CoronaSV. By combining different sequencing technologies and variant detection approaches, we can identify both a) confident SV calls and b) artifacts that may result from specific technologies + computational approaches.
 
 
+## What is CoronaSV?
+CoronaSV is an SV detection and validation pipeline for SARS-CoV-2 sequencing data (Illumina Paired-End & Oxford Nanopore Long Read Sequencing).
+
+CoronaSV is a pipeline for structural variation detection and validation within SARS-CoV-2 genomes. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
 
 
 # How to install and run CoronaSV
@@ -44,6 +34,9 @@ conda env create -f ./Envs/CoronaSV_V1.yml  -n CoronaSV
 conda activate CoronaSV
 
 ```
+
+That's it! You should now have the CoronaSV environment activated.
+
 
 
 ## A quick example of how to run CoronaSV
@@ -80,25 +73,19 @@ If you would like to run CoronaSV on all samples identified in our metadata file
 input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
 ```
 
+## Overview of available data
 
+Sequencing data from multiple sequencing technologies and library prep strategies are available. A summary of out initial dataset can be found in: [201013_CoronaSV_Metadata_V1.tsv](Metadata_TSVs/201013_CoronaSV_Metadata_V1.tsv)
 
-
-
-
-
-
-
-
-
-# Overview Diagram
-
-![workflow](HackathonGroup3flowchart.png)
 
 # CoronaSV Pipeline Overview
 
+![workflow](HackathonGroup3flowchart.png)
+
+
 ## Data download
 
-All sequencing read data will be queried and downloaded from SRA using the SRAtoolkit. 
+All sequencing read data is queried and downloaded from SRA using the SRAtoolkit. 
 
 ## SV calling from de novo assemblies
 
