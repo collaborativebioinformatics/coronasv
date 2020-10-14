@@ -8,11 +8,13 @@ dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_gnu
   - bamkit=16.07.26=py_0
+  - bcftools=1.8=h4da6232_3
   - boost-cpp=1.70.0=h7b93d67_3
   - bzip2=1.0.8=h516909a_3
   - c-ares=1.16.1=h516909a_3
   - ca-certificates=2020.6.20=hecda079_0
   - certifi=2019.11.28=py27h8c360ce_1
+  - curl=7.71.1=he644dc0_8
   - delly=0.8.5=hf3ca161_0
   - gawk=5.1.0=h516909a_0
   - htslib=1.10.2=hd3b49d5_1
