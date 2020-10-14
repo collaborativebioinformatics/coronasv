@@ -183,8 +183,8 @@ SV callsets were compared and integrated using [SURVIVOR](https://github.com/fri
 
 ## Results 
 
-
-
+### SV results of long-read data
+![longhh-reads](https://github.com/collaborativebioinformatics/coronasv/blob/main/long_reads_pipeline/long-reads-statistics.png)
 
 
 
