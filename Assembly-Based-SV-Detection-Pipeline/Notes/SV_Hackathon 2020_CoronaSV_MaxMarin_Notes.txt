@@ -742,7 +742,6 @@ snakemake -s Main_SnakeMake_Script_Template_V1.smk --config output_dir=${targetO
 #### IT WORKED
 
 
-
 #### Writing Description for installtion and running the 
 
 
@@ -832,5 +831,47 @@ snakemake -s CoronaSV_V1.smk --config output_dir=${targetOutput_Dir} inputSample
 
 
 snakemake -s CoronaSV_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -p --use-conda --cores 4 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Download all BAMs
+
+
+cd /home/mgmarin/Documents/SV_Hackathon2020
+
+dx ls bam_files/
+
+dx download --recursive bam_files/
+
+
+dx ls vcf_files/asm-based/
+dx download --recursive vcf_files/
+
+
+conda activate SV_Hack_V1
+
+
+
+bioawk -c fastx '{ print $name, length($seq) }' genomic.fna | wc -l
+
+
+cd /home/mgmarin/Documents/SV_Hackathon2020/vcf_files/asm-based/unicycler
+
+bioawk -c fastx '{ print $name, length($seq) }' *.fasta | wc -l
+
+
+
+
+
 
 
