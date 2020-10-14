@@ -35,18 +35,29 @@ CoronaSV_Metadata_Illumina_PE_DF = CoronaSV_Metadata_All_DF[ (CoronaSV_Metadata_
 input_SampleIDs_WiIllumina = list( CoronaSV_Metadata_Illumina_PE_DF["Run"].values )
 input_SampleIDs_WiNanopore = list( CoronaSV_Metadata_ONT_DNA_DF["Run"].values )
 
-print(len(input_SampleIDs_WiIllumina))
-print(len(input_SampleIDs_WiNanopore))
+#print(len(input_SampleIDs_WiIllumina))
+#print(len(input_SampleIDs_WiNanopore))
 
 
 rule all:
     input:
-        expand(output_Dir + "/Nanopore_FQs/{sampleID_WiNanopore}.fastq", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
         expand(output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
         expand(output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
         expand(output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta.fai", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
         expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/Minimap2_Alignment/{sampleID_WiIllumina}.minimap2.paftools.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
-        expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}_ref_snps.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}.NucDiff_ref_snps.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        expand(output_Dir + "/{sampleID_WiIllumina}/VariantCalling/SVanalyzer_SVrefine_Ill_SPAdes_Assembly_SV_Calling/{sampleID_WiIllumina}.MUMmer.SVrefine.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+
+
+        expand(output_Dir + "/Nanopore_FQs/{sampleID_WiNanopore}.fastq", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
+        expand(output_Dir + "/Nanopore_MM2_sniffles/{sampleID_WiNanopore}.sniffles.vcf", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
+        expand(output_Dir + "/Nanopore_MM2_svim/{sampleID_WiNanopore}/variants.vcf", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
+        expand(output_Dir + "/Nanopore_MM2_cuteSV/{sampleID_WiNanopore}.cuteSV.vcf", sampleID_WiNanopore=input_SampleIDs_WiNanopore),
+
+        expand(output_Dir +"results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        expand(output_Dir +"results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina),
+        expand(output_Dir +"results/variants_lumpy/{sampleID_WiIllumina}.bwa.rg.dedup.lumpy.vcf", sampleID_WiIllumina=input_SampleIDs_WiIllumina)
+
 
 
 
@@ -87,19 +98,29 @@ rule download_Nanopore_FQ_FromSRA_RunID:
 ########## A) Long Reads Quality Control ##########
 
 
-Nanopore_FQ
 
+
+rule nanoplot_QC:
     input:
-
+        ONT_FQ = output_Dir + "/Nanopore_FQs/{sampleID_WiNanopore}.fastq",
     output:
-    
-    conda:
-        "Envs/____.yml"
-    
-    threads: 1
-
+         output_Dir + "/Nanopore/Nanopore_QC/{sampleID_WiNanopore}.NanoPlot/NanoPlot-report.html"
+    threads: 2
     shell:
-        "" 
+        "NanoPlot -t {threads} --fastq {input.ONT_reads_fq} -o {output_Dir}/{wildcards.sampleID_WiNanopore}/Nanopore/Nanopore_QC/{wildcards.sampleID_WiNanopore}.NanoPlot/"
+
+
+
+rule nanofilt_QC:
+    input:
+        ONT_FQ = output_Dir + "/Nanopore_FQs/{sampleID_WiNanopore}.fastq",
+    output:
+        ONT_Filtered_FQ = output_Dir + "/Nanopore_FQs_Filtered/{sampleID_WiNanopore}.Filtered.fastq",
+
+    threads: 2
+    shell:
+        "NanoFilt -q 10 --headcrop 50 {input.ONT_FQ} > {output.ONT_Filtered_FQ}"
+
 
 
 
@@ -107,26 +128,32 @@ Nanopore_FQ
 
 ########## B) Mapping long reads to reference genome ##########
 
-ONT_Minimap2_Alignment
+rule ONT_Minimap2_Alignment_And_Processing_ONT_Reads:
     input:
-
+        ONT_Filtered_FQ = output_Dir + "/Nanopore_FQs_Filtered/{sampleID_WiNanopore}.Filtered.fastq",
+        Ref_FA = refGenome_FA_PATH,
     output:
-    
-    conda:
-        "Envs/____.yml"
-    
+        ONT_MM2_SAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.sam",
+
     threads: 1
 
     shell:
-        "" 
-
-
-# add MD tag to bam file (which need by Sniffles)
-
-Samtools_SAM_To_BAM_WiIndexAndSort:
+        "minimap2 -ax map-ont {input.Ref_FA} {input.ONT_Filtered_FQ} > {output.ONT_MM2_SAM}  \n"
 
 
 
+rule samtools_Processing_ONT_Reads:
+    input:
+        ONT_MM2_SAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.sam",
+        Ref_FA = refGenome_FA_PATH,
+    output:
+        ONT_MM2_Sorted_BAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.sorted.bam",
+        ONT_MM2_Final_BAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.final.bam",
+        ONT_MM2_Final_BAM_BAI = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.final.bam.bai",
+    shell:
+        "samtools view -bS {input.ONT_MM2_SAM} | samtools sort - > {output.ONT_MM2_Sorted_BAM}  \n"
+        "samtools calmd {output.ONT_MM2_Sorted_BAM} {input.Ref_FA} | samtools view -bS > {output.ONT_MM2_Final_BAM}  \n"
+        "samtools index {output.ONT_MM2_Final_BAM}  \n"
 
 
 
@@ -137,32 +164,26 @@ Samtools_SAM_To_BAM_WiIndexAndSort:
 
 rule ONT_MM2_Sniffles:
     input:
-
+        ONT_MM2_Final_BAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.final.bam",
     output:
-    
-    conda:
-        "Envs/unicycler_4_8.yml"
-    
+        ONT_Sniffles_VCF = output_Dir + "/Nanopore_MM2_sniffles/{sampleID_WiNanopore}.sniffles.vcf",
+
     threads: 1
 
     shell:
-        "sniffles -m 02.mapping/SRS6189915.final.bam -v 03.results/01.sniffles/SRS6189915.vcf" 
+        "sniffles -m {input.ONT_MM2_Final_BAM} -v {output.ONT_Sniffles_VCF}" 
 
 
 ####### Sniffles SV Calling ####### 
 
 rule ONT_MM2_SVIM:
     input:
-
+        ONT_MM2_Final_BAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.final.bam",
+        Ref_FA = refGenome_FA_PATH,
     output:
-    
-    conda:
-        "Envs/unicycler_4_8.yml"
-    
-    threads: 1
-
+        ONT_SVIM_VCF = output_Dir + "/Nanopore_MM2_svim/{sampleID_WiNanopore}/variants.vcf",
     shell:
-        "svim alignment 03.results/02.svim/SRS6189915 reference_genome/SARS_2CoV_2.fasta" 
+        "svim alignment {output_Dir}/Nanopore_MM2_svim/{wildcards.sampleID_WiNanopore} {input.ONT_MM2_Final_BAM} {input.Ref_FA}" 
 
 
 
@@ -170,17 +191,14 @@ rule ONT_MM2_SVIM:
 
 rule ONT_MM2_cuteSV:
     input:
-
+        ONT_MM2_Final_BAM = output_Dir + "/Nanopore_MM2_Alignments/{sampleID_WiNanopore}.minimap2.final.bam",
+        Ref_FA = refGenome_FA_PATH,
     output:
-    
-    conda:
-        "Envs/___.yml"
-    
-    threads: 1
+        ONT_cuteSV_VCF = output_Dir + "/Nanopore_MM2_cuteSV/{sampleID_WiNanopore}.cuteSV.vcf",
 
     shell:
-        "mkdir -p tmp/SRS6189915  \n"
-        "cuteSV 02.mapping/SRS6189915.final.bam 03.results/03.cuteSV/SRS6189915.vcf tmp/SRS6189915" 
+        "mkdir -p tmp/{wildcards.sampleID_WiNanopore}  \n"
+        "cuteSV {input.ONT_MM2_Final_BAM} {input.Ref_FA} {output.ONT_cuteSV_VCF} tmp/{wildcards.sampleID_WiNanopore}" 
 
 
 
@@ -190,8 +208,8 @@ rule ONT_MM2_cuteSV:
 # can move adapter list to config file later
 rule trimmomatic_Illumina_PE_Trimming:
     input:
-        r1 = output_Dir + "/raw_reads_sars_cov_2/{sampleID_WiIllumina}_1.fastq",
-        r2 = output_Dir + "/raw_reads_sars_cov_2/{sampleID_WiIllumina}_2.fastq",
+        r1 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_1.fastq",
+        r2 = output_Dir + "/Illumina_PE_FQs/{sampleID_WiIllumina}_2.fastq",
     output:
         r1 = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_1_trimmed.fastq",
         r2 = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_2_trimmed.fastq",
@@ -236,14 +254,16 @@ rule unicycler_SPAdes_Assemble_IlluminaWGS:
         # " ‑‑mode conservative " # This version of unicycler doesn't support the --mode arguement
 
 
-rule rename_SPAdesAssembly_WithBioAWK:
+rule rename_SPAdesAssembly_WithBioAWK_And_IndexFA:
     input:
         Ill_SPAdes_assembly_fa = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/assembly.fasta",
     output:
         Ill_SPAdes_Assembly_Renamed_fa = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta",
+        Ill_SPAdes_Assembly_Renamed_fa_fai = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta.fai",
 
     shell:
-        "bioawk -c fastx '{{ print \">{wildcards.sampleID_WiIllumina}_\"$name \"\\n\" $seq }}' {input} > {output}"
+        "bioawk -c fastx '{{ print \">{wildcards.sampleID_WiIllumina}_\"$name \"\\n\" $seq }}' {input} > {output.Ill_SPAdes_Assembly_Renamed_fa} \n"
+        "samtools faidx {output.Ill_SPAdes_Assembly_Renamed_fa}"
 
 
 
@@ -290,38 +310,171 @@ rule NucDiff_Ill_SPAdes_Assembly_AlignTo_Ref_WithVCFoutput:
         Ill_SPAdes_Assembly_Renamed_fa = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta",
         Ref_FA = refGenome_FA_PATH,
     output:
-        NucDiff_SmallVariants_GFF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/NucDiff_{sampleID_WiIllumina}_ref_snps.gff",
-        NucDiff_SmallVariants_VCF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}_ref_snps.vcf",
-        NucDiff_Struct_GFF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/NucDiff_{sampleID_WiIllumina}_ref_struct.gff",
-        NucDiff_Struct_FilteredSVs_GFF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/NucDiff_{sampleID_WiIllumina}_ref_struct.Filtered.SVs.gff",
+        NucDiff_SmallVariants_GFF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}.NucDiff_ref_snps.gff",
+        NucDiff_SmallVariants_VCF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}.NucDiff_ref_snps.vcf",
+        NucDiff_Struct_GFF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/results/{sampleID_WiIllumina}.NucDiff_ref_struct.gff",
+        MUMmer_Delta_Aln_File = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/{sampleID_WiIllumina}.NucDiff.delta",
     conda:
         "Envs/nucdiff_2_0_3_Conda.yml"
     threads: 1
     shell:
         "nucdiff {input.Ref_FA} {input.Ill_SPAdes_Assembly_Renamed_fa} {output_Dir}/{wildcards.sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{wildcards.sampleID_WiIllumina}_V2_WiVCFout {wildcards.sampleID_WiIllumina}.NucDiff --vcf yes \n"
-        ' grep -v "reshuffling" {output.NucDiff_Struct_GFF} > {output.NucDiff_Struct_FilteredSVs_GFF} \n'
-
-
 
 
 
 rule SVanalyzer_SVrefine_Ill_SPAdes_Assembly_AlignTo_Ref:
     input:
-        input_MUMmer_Delta_Aln_File = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/{sampleID_WiIllumina}.NucDiff.delta",
+        MUMmer_Delta_Aln_File = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/NucDiff_Analysis_{sampleID_WiIllumina}_V2_WiVCFout/{sampleID_WiIllumina}.NucDiff.delta",
         Ill_SPAdes_Assembly_Renamed_fa = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/Unicycler_SPAdes_Assembly/{sampleID_WiIllumina}.SPAdes.Assembly.fasta",
         Ref_FA = refGenome_FA_PATH,
     output:
-        SVrefine_Ill_SPAdes_Assembly_VCF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/SVanalyzer_SVrefine_Ill_SPAdes_Assembly_SV_Calling/"
+        SVrefine_Ill_SPAdes_Assembly_VCF = output_Dir + "/{sampleID_WiIllumina}/VariantCalling/SVanalyzer_SVrefine_Ill_SPAdes_Assembly_SV_Calling/{sampleID_WiIllumina}.MUMmer.SVrefine.vcf"
     threads: 1
     shell:
-        "SVrefine --delta {input.input_MUMmer_Delta_Aln_File} "
+        "SVrefine --delta {input.MUMmer_Delta_Aln_File} "
         "--ref_fasta {input.Ref_FA} "
         "--query_fasta {input.Ill_SPAdes_Assembly_Renamed_fa} "
         "--outvcf {output.SVrefine_Ill_SPAdes_Assembly_VCF} "
-        "--refname 'NC_045512.2' --samplename {wildcards.sampleID_WiIllumina} "
+        " --samplename {wildcards.sampleID_WiIllumina} "
 
 
 
 
+rule reference_faidx:
+  input:
+    REFERENCE = refGenome_FA_PATH
+  output:
+    refGenome_FA_PATH +".fai"
+  shell:
+    """
+    samtools faidx {input}
+    """
+
+rule bwa_index:
+  input:
+    REFERENCE = refGenome_FA_PATH
+  output:
+    refGenome_FA_PATH +".bwt"
+  shell:
+    """
+    bwa index {input}
+    """
 
 
+# MAPPING
+
+rule bwa:
+  input:
+    fq1_trimmed = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_1_trimmed.fastq",
+    fq2_trimmed = output_Dir + "/{sampleID_WiIllumina}/IlluminaWGS/FASTQs/{sampleID_WiIllumina}_2_trimmed.fastq",
+    reference = refGenome_FA_PATH +".bwt",
+  output:
+    sam = temp(output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.sam")
+  params:
+    reference = refGenome_FA_PATH
+  threads: 5
+  shell:
+    """
+    bwa mem -t {threads} {params.reference} {input.fq1_trimmed} {input.fq2_trimmed} > {output.sam}
+    """
+
+rule sam2bam:
+  input:
+    sam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.sam"
+  output:
+    bam = temp(output_Dir +"results/alignments/{sampleID_WiIllumina}.bwa.bam")
+  shell:
+    """
+    samtools view -Sb {input.sam} | samtools sort > {output.bam}
+    """
+
+# MAPPING POSTPROCESSING
+
+rule read_groups:
+  input:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.bam"
+  output:
+    bam = temp(output_Dir +"results/alignments/{sampleID_WiIllumina}.bwa.rg.bam")
+  shell:
+    """
+    picard AddOrReplaceReadGroups I={input.bam} O={output.bam} RGID=1 RGLB=lib RGPL=ILLUMINA RGPU=unit1 RGSM=Sample1
+    """
+
+rule deduplicate:
+  input:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.bam"
+  output:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
+  params:
+    txt = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.txt"
+
+  shell:
+    """
+    picard MarkDuplicates REMOVE_DUPLICATES=true ASSUME_SORTED=true I={input.bam} O={output.bam} M={params.txt}
+    """
+
+rule bam_index:
+  input:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
+  output:
+    bam_index = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai"
+  shell:
+    """
+    samtools index {input.bam}
+    """
+
+# SV calling with Delly
+
+rule delly:
+  input:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam",
+    bai = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai",
+    ref_FA = refGenome_FA_PATH
+  output:
+    vcf = output_Dir + "results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.vcf"
+  params:
+    bcf = output_Dir + "results/variants_delly/{sampleID_WiIllumina}.bwa.rg.dedup.delly.bcf"
+  conda:
+    "Envs/SV_Hack_V1_ShortRead_SV_Calling.yml"
+  shell:
+    """
+    delly call -g {input.ref_FA} {input.bam} -o {params.bcf}
+    bcftools view {params.bcf} > {output.vcf}
+    """
+
+# SV calling with Manta
+
+rule manta:
+  input:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam",
+    bai = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam.bai",
+    ref_FA = refGenome_FA_PATH
+  output:
+    output_Dir + "results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf"
+  params:
+    outdir = output_Dir + "results/variants_manta/{sampleID_WiIllumina}",
+    output = output_Dir + "results/variants_manta/{sampleID_WiIllumina}/results/variants/tumorSV.vcf.gz"
+  conda:
+    "Envs/SV_Hack_V1_ShortRead_SV_Calling.yml"
+  shell:
+    """
+    configManta.py --tumorBam {input.bam} --referenceFasta {input.ref_FA} --runDir {params.outdir}
+    {params.outdir}/runWorkflow.py
+    gunzip {params.output}
+    """
+
+# SV calling with Lumpy
+
+rule lumpy:
+  input:
+    bam = output_Dir + "results/alignments/{sampleID_WiIllumina}.bwa.rg.dedup.bam"
+  output:
+    output_Dir + "results/variants_lumpy/{sampleID_WiIllumina}.bwa.rg.dedup.lumpy.vcf"
+  conda:
+    "Envs/SV_Hack_V1_ShortRead_SV_Calling.yml"
+  shell:
+    """
+    lumpyexpress \
+    -B {input.bam} \
+    -o {output}
+    """ 

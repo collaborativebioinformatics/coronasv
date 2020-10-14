@@ -108,7 +108,7 @@ rule NucDiff_Ill_SPAdes_Assembly_AlignTo_Ref_WithVCFoutput:
 
 rule SVanalyzer_SVrefine_Ill_SPAdes_Assembly_AlignTo_Ref:
     input:
-        input_MUMmer_Delta_Aln_File = "results/AssemblyToRef_Variants/{run}.NucDiff.delta",
+        input_MUMmer_Delta_Aln_File = "results/AssemblyToRef_Variants/NucDiff_{run}/{run}.NucDiff.delta",
         Ill_SPAdes_Assembly_Renamed_fa = "results/Assemblies/Unicycler_SPAdes_Assembly_{run}/{run}.SPAdes.Assembly.fasta",
         Ref_FA = refGenome_FA_PATH,
     output:

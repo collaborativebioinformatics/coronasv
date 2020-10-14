@@ -1,0 +1,3 @@
+BioProject	SRA_Study	Run	Experiment	BioSample	SRA_Sample	Assay_Type	Platform	Instrument	LibraryLayout	Library_Name	Sample_Name	Organism	isolate
+PRJNA607948	SRP250294	SRR11140747	SRX7777163	SAMN14154202	SRS6189917	WGS	OXFORD_NANOPORE	GridION	SINGLE	veroE6_ONT	veroE6_ONT	Severe acute respiratory syndrome coronavirus 2	2019-nCoV/USA-WI1/2020 ONT replicate - Vero E6
+PRJNA607948	SRP250294	SRR11140748	SRX7777162	SAMN14154201	SRS6189918	WGS	ILLUMINA	Illumina MiSeq	PAIRED	vero76_illumina	vero76_illumina	Severe acute respiratory syndrome coronavirus 2	2019-nCoV/USA-WI1/2020 Illumina replicate - Vero 76

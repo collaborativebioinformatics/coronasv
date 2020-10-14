@@ -239,6 +239,12 @@ conda install sra-tools
 conda install svanalyzer
 
 
+
+
+
+
+
+
 ## EXPORT SV_Hack_V1 environment ##
 
 conda activate SV_Hack_V1
@@ -609,6 +615,18 @@ conda env create -f ./Envs/SV_Hack_V1.yml -n SV_Hack_V1
 
 
 
+
+targetOutput_Dir="/home/dnanexus/CoronaSV_Assembly_SV_Analysis_OutputDir_V3"
+
+mkdir ${targetOutput_Dir}
+
+cd ${targetOutput_Dir}
+
+dx download --recursive raw_reads_sars_cov_2/
+
+dx download --recursive trimmed_reads/
+
+
 conda activate SV_Hack_V1
 
 Corona_SV_O2_Dir="/home/dnanexus/coronasv"
@@ -626,9 +644,6 @@ input_Slurm_Cluster_Config="./clusterConfig_Slurm_V1.json"
 input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_PairedData_ONT_And_Illumina_ONLY.tsv"
 
 
-targetOutput_Dir="/n/scratch3/users/m/mm774/CoronaSV_Analysis_OutputDir_V3"
-
-mkdir ${targetOutput_Dir}
 
 
 snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${inputConfigFile} -np  
@@ -646,5 +661,176 @@ snakemake -s CoronaSV_AssemblyBasedSVCalling_IlluminaOnly_V4.smk --config output
 
 
 
+
+
+
+
+
+
+# Software to install for the Long Reads Alignment Pipeline
+
+
+Corona_SV_O2_Dir="/home/dnanexus/coronasv"
+MGM_CoronaSV_O2_RepoDir="${Corona_SV_O2_Dir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_O2_RepoDir}
+
+
+conda activate SV_Hack_V1
+
+mamba install -c bioconda nanofilt nanoplot
+
+mamba install -c bioconda cutesv sniffles svim
+
+mamba install -c bioconda survivor
+
+
+
+mamba install -c bioconda bwa picard-slim 
+
+
+conda env export > Envs/SV_Hack_V1.yml 
+conda env export > Envs/CoronaSV_V1.yml 
+
+
+conda create -c conda-forge -c bioconda -n SV_Hack_V1_ShortRead_SV_Calling lumpy-sv delly manta
+
+
+conda activate SV_Hack_V1_ShortRead_SV_Calling
+
+conda env export > Envs/SV_Hack_V1_ShortRead_SV_Calling.yml 
+
+
+
+
+
+
+
+
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${MGM_CoronaSV_RepoDir}
+
+input_ConfigFile="./SMK_config_V1.txt"
+
+input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+
+targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V3"
+
+mkdir ${targetOutput_Dir}
+
+
+snakemake -s Main_SnakeMake_Script_Template_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -np --cores 3 
+
+snakemake -s Main_SnakeMake_Script_Template_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_1_Illumina_1_ONT_Runs_dag.svg
+
+
+snakemake -s Main_SnakeMake_Script_Template_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -p --use-conda --cores 4 
+
+
+
+
+
+
+
+#### IT WORKED
+
+
+
+#### Writing Description for installtion and running the 
+
+
+### Installation of CoronaSV
+
+Use conda to create the CoronaSV environment. This environment includes all of the core software used by the pipeline + the Snakemake workflow management system.
+
+```
+# Clone Git Repo
+git clone https://github.com/collaborativebioinformatics/coronasv.git
+
+cd ./coronasv/
+
+# Create an environment for CoronaSV
+conda env create -f ./Envs/CoronaSV_V1.yml  -n CoronaSV
+
+# Activate CoronaSV environment
+conda activate CoronaSV
+
+```
+
+
+#### A quick example of how to run CoronaSV
+
+The example below runs CoronaSV on all SRA Run Accessions defined in the "Sample Info TSV" file.
+
+In this case the Sample Info TSV is ./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv, which contains 1 Nanopore sequencing run and 1 Illumina sequencing run of a SARS-Cov-2 isolate.
+
+```
+
+conda activate CoronaSV
+
+# Enter "coronasv" git repository directory
+cd ./coronasv/
+
+# Define configuration files
+input_ConfigFile="./SMK_config_V1.txt"
+
+input_SampleInfo_TSV="./Metadata_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+
+
+# DEFINE the output directory of the CoronaSV pipeline
+
+target_Output_Dir="../CoronaSV_Analysis_TestSubset1_OutputDir"
+
+mkdir ${target_Output_Dir}
+
+# Run 
+snakemake -s CoronaSV_V1.smk --config output_dir=${target_Output_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -p --use-conda --cores 4 
+
+``` 
+
+If you would like to run CoronaSV on all samples identified in our metadata file, change the definition of the "input_SampleInfo_TSV" bash variaible:
+
+```
+input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+```
+
+
+
+
+
+
+
+conda activate SV_Hack_V1
+
+CoronaSV_RepoDir="/home/mgmarin/Documents/SV_Hackathon2020/coronasv"
+# MGM_CoronaSV_RepoDir="${CoronaSV_RepoDir}/Assembly-Based-SV-Detection-Pipeline"
+
+
+cd ${CoronaSV_RepoDir}
+
+input_ConfigFile="./SMK_config_V1.txt"
+
+
+# input_SampleInfo_TSV="./Metadata_TSVs/201013_CoronaSV_Metadata_V1.tsv"
+input_SampleInfo_TSV="./Metadata_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+
+targetOutput_Dir="/mnt/HD1TB/CoronaSV_Analysis_OutputDir_V3"
+
+mkdir ${targetOutput_Dir}
+
+
+snakemake -s CoronaSV_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -np --cores 4 
+
+snakemake -s CoronaSV_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -np --dag --use-conda | dot -Tsvg > DAGs/TestRun_1_Illumina_1_ONT_Runs_dag.svg
+
+
+snakemake -s CoronaSV_V1.smk --config output_dir=${targetOutput_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -p --use-conda --cores 4 
 
 
