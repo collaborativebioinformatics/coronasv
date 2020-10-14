@@ -18,6 +18,9 @@ CoronaSV takes both short and long read datasets as input, followed by the quali
 
 ## Installation of CoronaSV
 
+All of the software packages used by CoronaSV can be installed via the Conda package manager. Additionally, the CoronaSV workflow is defined using Snakemake. Running the CoronaSV.smk snakemake pipeline handles downloading all specified data and processing of sequencing data to variant calls.
+
+
 ### Installing CoronaSV from Github (Using [conda](https://github.com/conda/conda))
 
 Clone the CoronaSV Github repository, and then use conda to create an environment with all needed software. This Conda environment includes all of the core software used by the pipeline + the Snakemake workflow management system.
