@@ -22,6 +22,76 @@ Understanding structure variations in SARS-CoV-2 genomes is critical for us to l
 
 CoronaSV is a pipeline for structural variation detection and validation for SARS-CoV-2 at read level. CoronaSV takes both short and long read datasets as input, followed by the quality control step that does quality trimming and engineering sequence removal. CoronaSV incorporates both reference guided and de novo assembly approaches, and makes high confident SV calls by combining results from multiple state of the art SV callers using SURVIVOR.
 
+
+
+
+# How to install and run CoronaSV
+
+## Installation of CoronaSV
+
+Use conda to create the CoronaSV environment. This environment includes all of the core software used by the pipeline + the Snakemake workflow management system.
+
+```
+# Clone Git Repo
+git clone https://github.com/collaborativebioinformatics/coronasv.git
+
+cd ./coronasv/
+
+# Create an environment for CoronaSV
+conda env create -f ./Envs/CoronaSV_V1.yml  -n CoronaSV
+
+# Activate CoronaSV environment
+conda activate CoronaSV
+
+```
+
+
+## A quick example of how to run CoronaSV
+
+The example below runs CoronaSV on all SRA Run Accessions defined in the "Sample Info TSV" file.
+
+In this case the Sample Info TSV is ./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv, which contains 1 Nanopore sequencing run and 1 Illumina sequencing run of a SARS-Cov-2 isolate.
+
+```
+
+conda activate CoronaSV
+
+# Enter "coronasv" git repository directory
+cd ./coronasv/
+
+# Define configuration files
+input_ConfigFile="./SMK_config_V1.txt"
+
+input_SampleInfo_TSV="./Metadata_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+
+
+# DEFINE the output directory of the CoronaSV pipeline
+
+target_Output_Dir="../CoronaSV_Analysis_TestSubset1_OutputDir"
+
+mkdir ${target_Output_Dir}
+
+# Run 
+snakemake -s CoronaSV_V1.smk --config output_dir=${target_Output_Dir} inputSampleData_TSV=${input_SampleInfo_TSV} --configfile ${input_ConfigFile} -p --use-conda --cores 4 
+
+``` 
+
+If you would like to run CoronaSV on all samples identified in our metadata file, change the definition of the "input_SampleInfo_TSV" bash variaible:
+
+```
+input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+```
+
+
+
+
+
+
+
+
+
+
+
 # Overview Diagram
 
 ![workflow](HackathonGroup3flowchart.png)

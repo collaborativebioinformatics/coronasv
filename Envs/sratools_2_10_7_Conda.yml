@@ -1,0 +1,43 @@
+name: sratools_2_10_7
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=0_gnu
+  - hdf5=1.10.5=nompi_h3c11f04_1104
+  - icu=67.1=he1b5a44_0
+  - libgcc-ng=9.2.0=h24d8f2e_2
+  - libgfortran-ng=7.5.0=hdf63c60_6
+  - libgomp=9.2.0=h24d8f2e_2
+  - libiconv=1.15=h516909a_1006
+  - libstdcxx-ng=9.2.0=hdf63c60_2
+  - libxml2=2.9.10=h72b56ed_1
+  - ncbi-ngs-sdk=2.10.4=hdf6179e_0
+  - ossuuid=1.6.2=hf484d3e_1000
+  - perl=5.26.2=h516909a_1006
+  - perl-app-cpanminus=1.7044=pl526_1
+  - perl-business-isbn=3.004=pl526_0
+  - perl-business-isbn-data=20140910.003=pl526_0
+  - perl-carp=1.38=pl526_3
+  - perl-constant=1.33=pl526_1
+  - perl-data-dumper=2.173=pl526_0
+  - perl-encode=2.88=pl526_1
+  - perl-exporter=5.72=pl526_1
+  - perl-extutils-makemaker=7.36=pl526_1
+  - perl-file-path=2.16=pl526_0
+  - perl-file-temp=0.2304=pl526_2
+  - perl-mime-base64=3.15=pl526_1
+  - perl-parent=0.236=pl526_1
+  - perl-uri=1.76=pl526_0
+  - perl-xml-libxml=2.0132=pl526h7ec2d77_1
+  - perl-xml-namespacesupport=1.12=pl526_0
+  - perl-xml-sax=1.02=pl526_0
+  - perl-xml-sax-base=1.09=pl526_0
+  - perl-xsloader=0.24=pl526_0
+  - sra-tools=2.10.7=pl526haddd2b5_1
+  - xz=5.2.5=h516909a_0
+  - zlib=1.2.11=h516909a_1006
+prefix: /home/mm774/conda3/envs/sratools_2_10_7
+
