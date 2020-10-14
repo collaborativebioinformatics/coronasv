@@ -16,10 +16,14 @@ CoronaSV takes both short and long read datasets as input, followed by the quali
 
 
 # How to install and run CoronaSV
+# Installation options:
 
 ## Installation of CoronaSV
 
-Use conda to create the CoronaSV environment. This environment includes all of the core software used by the pipeline + the Snakemake workflow management system.
+
+### Installing CoronaSV from Github
+
+Clone the CoronaSV Github repository, and then use conda to create an environment with all neede software. This Conda environment includes all of the core software used by the pipeline + the Snakemake workflow management system.
 
 ```
 # Clone Git Repo
@@ -75,7 +79,7 @@ input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_I
 
 ## Overview of available data
 
-Sequencing data from multiple sequencing technologies and library prep strategies are available. A summary of out initial dataset can be found in: [201013_CoronaSV_Metadata_V1.tsv](Metadata_TSVs/201013_CoronaSV_Metadata_V1.tsv)
+Sequencing data from multiple sequencing technologies and library prep strategies are available. A summary of out initial dataset can be found in: [201013_CoronaSV_Metadata_V1.tsv](Metadata_TSVs/201013_CoronaSV_Metadata_V1.tsv).
 
 
 # CoronaSV Pipeline Overview
@@ -173,57 +177,13 @@ cuteSV uses tailored methods to collect the signatures of various types of SVs a
 
 [SURVIVOR](https://github.com/fritzsedlazeck/SURVIVOR) is a tool set for simulating/evaluating SVs, merging and comparing SVs within and among samples, and includes various methods to reformat or summarize SVs. 
 
-SV callsets were compared and integrated using it.
+SV callsets were compared and integrated using [SURVIVOR](https://github.com/fritzsedlazeck/SURVIVOR).
 
-# File structure diagram 
-#### _Define paths, variable names, etc_
 
-# Installation options:
+## Results 
 
-We provide two options for installing <this software>: Docker or directly from Github.
 
-### Docker
 
-The Docker image contains <this software> as well as a webserver and FTP server in case you want to deploy the FTP server. It does also contain a web server for testing the <this software> main website (but should only be used for debug purposes).
 
-1. `docker pull ncbihackathons/<this software>` command to pull the image from the DockerHub
-2. `docker run ncbihackathons/<this software>` Run the docker image from the master shell script
-3. Edit the configuration files as below
-
-### Installing <this software> from Github
-
-1. `git clone https://github.com/NCBI-Hackathons/<this software>.git`
-2. Edit the configuration files as below
-3. `sh server/<this software>.sh` to test
-4. Add cron job as required (to execute <this software>.sh script)
-
-### Configuration
-
-```Examples here```
-
-# Testing
-
-We tested four different tools with <this software>. They can be found in [server/tools/](server/tools/) . 
-
-# Additional Functionality
-
-### DockerFile
-
-<this software> comes with a Dockerfile which can be used to build the Docker image.
-
-  1. `git clone https://github.com/NCBI-Hackathons/<this software>.git`
-  2. `cd server`
-  3. `docker build --rm -t <this software>/<this software> .`
-  4. `docker run -t -i <this software>/<this software>`
-  
-### Website
-
-There is also a Docker image for hosting the main website. This should only be used for debug purposes.
-
-  1. `git clone https://github.com/NCBI-Hackathons/<this software>.git`
-  2. `cd Website`
-  3. `docker build --rm -t <this software>/website .`
-  4. `docker run -t -i <this software>/website`
-  
 
 
