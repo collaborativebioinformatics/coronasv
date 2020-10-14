@@ -1,7 +1,7 @@
 # CoronaSV
 ![logo](CoronaSV_logo.png)
 
-*Hackathon team: Daniel Agustinho, Daniela Soto, Max Marin, Shangzhe Zhang, Todd Treangen, Yunxi Liu*
+*Hackathon team: Daniel Agustinho, Daniela Soto, Max Marin, Shangzhe Zhang, Todd Treangen, Yunxi Liu, Arda Soylev*
 
 ## What's the problem?
 
