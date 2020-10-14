@@ -3,6 +3,10 @@
 
 *Hackathon team: Daniel Agustinho, Daniela Soto, Max Marin, Shangzhe Zhang, Todd Treangen, Yunxi Liu, Arda Soylev*
 
+## Final Presentation
+
+[Awesome Final Presentation](https://docs.google.com/presentation/d/1d9g-2LXWCSygzYGksg4ICuro8Ghy0tMR4VkOIaBDs9w/edit?usp=sharing)
+
 ## What's the problem?
 
 Deletions have been reported in several SARS-CoV-2 genomes, primarily detected at the consensus/assembly level. The level of confidence in how these deletions are detected have not yet thoroughly been evaluated.  Existing methods for detecting structural variation at the individual read level often suffer from false positive calls. Additionally analysis with different SV calling pipelines often result in inconsistent calls. In order to examine the landscape and extent of structural variation across SARS-Cov-2 genomes, a method for generating accurate and trustworthy SV calls is needed. With this in mind, we developed the CoronaSV bioinformatics pipeline.
