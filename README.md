@@ -71,7 +71,7 @@ snakemake -s CoronaSV_V1.smk --config output_dir=${target_Output_Dir} inputSampl
 If you would like to run CoronaSV on all samples identified in our metadata file, change the definition of the 'input_SampleInfo_TSV' bash variaible:
 
 ```
-input_SampleInfo_TSV="./runInfo_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
+input_SampleInfo_TSV="./Metadata_TSVs/CoronaSV_metadata_TestSubset_1_Nanopore_1_Illumina.tsv"
 ```
 
 ## Overview of available data
