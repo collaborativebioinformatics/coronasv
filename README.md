@@ -179,6 +179,19 @@ cuteSV uses tailored methods to collect the signatures of various types of SVs a
 [SURVIVOR](https://github.com/fritzsedlazeck/SURVIVOR) is a tool set for simulating/evaluating SVs, merging and comparing SVs within and among samples, and includes various methods to reformat or summarize SVs. 
 
 SV callsets were compared and integrated using [SURVIVOR](https://github.com/fritzsedlazeck/SURVIVOR).
+ 
+First, to detect SVs consistently within the three different methods (short reads, long reads or assembly), SURVIVOR is used to filter SVs that were called by at least two different tools. That way, three different VCF files for each kind of SV analyzed (Deletion, Duplication or Inversion) are generated, one for each of the methods. 
+
+Next, SURVIVOR is used again between each one of the methods to generate one final file for each sample, for each kind of SV.
+
+SURVIVOR usage:
+_./SURVIVOR merge 200 2 1 0 0 1 VCFfiles_
+
+To determine SVs consistently found in the population, we used SURVIVOR between all the samples, looking for SVs that were present in the majority of the samples ( x=(n/2)+1, where n is the number of samples). The same procedure was used for each kind of SVs (see paragraph above). 
+
+SURVIVOR usage:
+_./SURVIVOR merge 200 x 1 0 0 1 VCFfiles_
+
 
 
 ## Results 
